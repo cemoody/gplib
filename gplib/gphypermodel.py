@@ -169,6 +169,7 @@ class GPHyperModel:
             nwalkers = max(ncpus * 2, len(self.keys) * 2)
         if use_pt is False: 
             ntemps = 1
+        single_parameter = self.initial_parameters
         if initial_parameters is None:
             if self.initial_parameters is None and use_pt is not None:
                 n = ntemps * nwalkers
@@ -179,7 +180,7 @@ class GPHyperModel:
                 if use_pt:
                     initial_parameters.shape = (ntemps, nwalkers, len(self.keys))
             else:
-                initial_parameters = self.initial_parameters
+                initial_parameters = initial_parameters
 
         # Run the MCMC sampler -- ensure the proper close of the threads
         fposterior = Posterior(self.xtrain,
@@ -193,6 +194,12 @@ class GPHyperModel:
                                self.func_error,
                                self.fixed_mean,
                                self.fixed_covariance)
+
+        # create a model instance and quit
+        if niter == 1:
+            _, self.model_instance = fposterior(single_parameter,
+                                                return_model=True)
+            return self.initial_parameters
 
         # Print to debugging the initial params
         msg  = "Using initial parameters for walker #1: \n"

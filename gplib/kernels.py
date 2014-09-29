@@ -15,6 +15,14 @@ class constrain_positive(object):
         return ~np.any(args < 0)
 
 
+class ZeroMean(object):
+    keys = []
+
+    def __call__(self, x, **_):
+        return np.zeros(x.shape[0])
+
+
+
 class DoWMean():
     keys = []
 
@@ -46,14 +54,15 @@ class DoWMean():
     def __call__(self, x, **trash):
         y = np.zeros(x.shape)
         for dow, pi in enumerate(self.dow_func_params):
-	    if self.order is None:
-		slope, intercept = pi
+            if self.order is None:
+                slope, intercept = pi
                 idx = (x % self.period == dow)
                 y[idx] = slope * x[idx] + intercept
             else:
                 idx = x % 7 == dow
                 y[idx] = pi(x[idx])
         return y
+
 
 class DoWPoly():
     keys = []
