@@ -187,8 +187,8 @@ class GPModel:
         self._mtrain = mtrain
         self._rtrain = rtrain
         self._mnew = mnew
-        msg = (np.diff(ts)*1000.0).astype('int')
-        logging.debug(msg)
+        #msg = str((np.diff(ts)*1000.0).astype('int'))
+        #logging.debug(msg)
         return mu, cov
 
     @property

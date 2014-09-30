@@ -9,6 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 start = time.time()
 from gpmodel import GPModel
 
+
 def fprior(x):
     ret = -np.log(x)
     return -np.inf if np.any(np.isnan(ret)) else ret
@@ -340,11 +341,12 @@ class GPHyperModel:
                 fposterior(self.map_estimate, return_model=True)
         self.log_posterior *= -1.0  # negate the log_posterior 
         self.used_initial_parameters = initial_parameters
-        msg  = "MAP Estimate after optimization: \n"
+        msg = "MAP Estimate after optimization: \n"
         msg += str(self.map_estimate) + "\n"
         msg += "logp is %1.2f" % self.log_posterior
         self.logger.debug(msg)
         return self.map_estimate
+
 
 class LogUnformPrior:
     def __init__(self):
@@ -352,6 +354,7 @@ class LogUnformPrior:
 
     def __call__(self, *args):
         return -np.log(args)
+
 
 class Posterior:
     """
