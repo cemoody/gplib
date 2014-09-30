@@ -191,7 +191,6 @@ class GPModel:
         logging.debug(msg)
         return mu, cov
 
-    @timeit
     @property
     def log_likelihood(self):
         if self._log_likelihood is not None:
