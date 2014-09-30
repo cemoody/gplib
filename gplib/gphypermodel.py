@@ -394,7 +394,7 @@ class Posterior:
 
     def devectorize(self, hp):
         assert len(hp) == len(self.keys)
-        return  {k: v for k, v in zip(self.keys, hp)}
+        return {k: v for k, v in zip(self.keys, hp)}
 
     def _posterior(self, hyperparameters):
         if type(hyperparameters) is not dict:

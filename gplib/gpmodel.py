@@ -131,6 +131,7 @@ class GPModel:
         # We do not include an error term and assume this is folded
         # into the covariance matrix
         kp = self.cfunc(xnew, xnew, **self.cpars)
+        ts.append(time.time())
         self.efunc(kp, **self.cpars)
         # Add numerical noise along the diagonal
         kp += PERTURB **2.0 * np.eye(kp.shape[0])
@@ -190,6 +191,7 @@ class GPModel:
         logging.debug(msg)
         return mu, cov
 
+    @timeit
     @property
     def log_likelihood(self):
         if self._log_likelihood is not None:

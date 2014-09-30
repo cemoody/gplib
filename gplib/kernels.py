@@ -4,6 +4,7 @@ import toolz  # Actually builds the Python kitchen sink
 from pandas.tseries.holiday import USFederalHolidayCalendar
 import pandas as pd
 import scipy.stats
+import time
 from numba.decorators import jit, autojit
 
 
@@ -154,14 +155,17 @@ class DoWCovariance():
         # Day of week, 2-day, 7-day, 91-day periodicity, and day of year
         if k is None:
             k = np.zeros([x.shape[0], y.shape[0]])
-        self.dow_kernel(x, y, k, dayofyear_scale365_amp, dayofyear_amp, 
+        #ts = [time.time()]
+        self.dow_kernel(x, y, k, dayofyear_scale365_amp, dayofyear_amp,
                         dayofweek_scale1_amp,
                         dayofweek_scale7_amp, dayofweek_scale28_amp, 
                         dayofweek_scale91_amp, self.no_dayofyear)
+        #ts.append(time.time())
 
         # Holiday covariances
         holidays = self.calc_holidays(start_date=self.holiday_start_date)
         self.holiday_kernel(k, holidays, holiday_amp)
+        #ts.append(time.time())
 
         # Reduce anything along the diagonal.
         if self.no_self_covariance:
@@ -169,11 +173,14 @@ class DoWCovariance():
             k[idx] *= np.random.random(k.shape[0]) * 1e-6
             #k[idx] += np.random.random(k.shape[0]) * 1e-4
             #k *= (~np.eye(k.shape[0], dtype='bool') + 1e-9)
+        #ts.append(time.time())
 
         # Noise for numerical stability
         # Avoid singular matrices by adding noise along the diagonal
         noise = np.random.random(x.shape[0]) * PERTURB
         self.numerical_noise_kernel(k, noise)
+        #ts.append(time.time())
+        #print np.diff(ts)
         return np.matrix(k)
 
     @staticmethod
@@ -221,8 +228,8 @@ class DoWCovariance():
             for col in xrange(row % 7, ncol, 7):
                 d2 = (row - col)**2.0
                 tmp = (dayofweek_scale1_amp**2.0 * np.exp(-d2) +
-                       dayofweek_scale7_amp**2.0 * np.exp(-d2 / s7 ) +
-                       dayofweek_scale28_amp**2.0 * np.exp(-d2 / s28 ) +
+                       dayofweek_scale7_amp**2.0 * np.exp(-d2 / s7) +
+                       dayofweek_scale28_amp**2.0 * np.exp(-d2 / s28) +
                        dayofweek_scale91_amp**2.0 * np.exp(-d2 / s91))
                 if col < ncol:
                     k[row, col] += tmp
@@ -234,6 +241,7 @@ class DoWCovariance():
                 #tmp = dayofyear_scale365_amp * np.exp(-d2 / s365)
                 tmp = dayofyear_amp**2.0
                 k[row, col] += tmp
+
 
 class DoWError():
     def __init__(self, dow=True):
